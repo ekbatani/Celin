@@ -82,27 +82,27 @@ void CatPet::begin() {
   canvas_.setColorDepth(8);
   canvas_.createSprite(SCR_W, SCR_H);
 
-  canvas_.setPaletteColor(IDX_WALL,         230, 235, 248); // Soft pastel periwinkle-white
-  canvas_.setPaletteColor(IDX_FLOOR,        245, 222, 195); // Wheat / warm wood floor
-  canvas_.setPaletteColor(IDX_LINE,         195, 198, 220); // Soft grey-purple line
-  canvas_.setPaletteColor(IDX_CAT_BODY,     215, 190, 240); // Pastel lilac purple cat
-  canvas_.setPaletteColor(IDX_PINK,         255, 190, 200); // Pastel strawberry pink
-  canvas_.setPaletteColor(IDX_BLACK,         65,  55,  75); // Dark slate (not harsh black)
-  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 255); // Clean white
-  canvas_.setPaletteColor(IDX_PLATE,        200, 240, 230); // Soft mint plate
-  canvas_.setPaletteColor(IDX_FOOD,         235, 160, 100); // Pastel orange food
-  canvas_.setPaletteColor(IDX_CAT_STRIPE,   170, 140, 205); // Pastel grape purple stripes
-  canvas_.setPaletteColor(IDX_PLANT_POT,    235, 165, 140); // Pastel peach-terracotta pot
-  canvas_.setPaletteColor(IDX_PLANT_LEAF,   168, 218, 188); // Sage green leaves
-  canvas_.setPaletteColor(IDX_RUG,          255, 235, 185); // Cream-yellow rug
-  canvas_.setPaletteColor(IDX_RUG_PATTERN,  245, 210, 225); // Pale violet/rose pattern
-  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 218, 188, 158); // Beige-brown window frame
-  canvas_.setPaletteColor(IDX_WINDOW_SKY,   205, 238, 255); // Soft sky blue
-  canvas_.setPaletteColor(IDX_WINDOW_HILL,  190, 232, 195); // Pastel green hill
-  canvas_.setPaletteColor(IDX_SHADOW,       225, 200, 175); // Soft shadow on wood floor
-  canvas_.setPaletteColor(IDX_HEART,        255, 120, 145); // Rose heart
-  canvas_.setPaletteColor(IDX_ZZZ,          150, 180, 220); // Calm sky blue Zzz
-  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 240, 180); // Sun
+  canvas_.setPaletteColor(IDX_WALL,         255, 232, 218); // Cozy warm pastel peach wall
+  canvas_.setPaletteColor(IDX_FLOOR,        244, 215, 180); // Warm honey-beige wood floor
+  canvas_.setPaletteColor(IDX_LINE,         198, 172, 162); // Warm cocoa line color
+  canvas_.setPaletteColor(IDX_CAT_BODY,     255, 246, 230); // Warm cream cat body
+  canvas_.setPaletteColor(IDX_PINK,         255, 180, 185); // Warm strawberry pink nose/ears/cheeks
+  canvas_.setPaletteColor(IDX_BLACK,         70,  55,  50); // Warm dark charcoal (not cold black)
+  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 255); // Clean white chest/socks
+  canvas_.setPaletteColor(IDX_PLATE,        235, 245, 230); // Soft sage-green plate
+  canvas_.setPaletteColor(IDX_FOOD,         240, 145,  95); // Golden-orange food
+  canvas_.setPaletteColor(IDX_CAT_STRIPE,   242, 180, 128); // Warm ginger stripes
+  canvas_.setPaletteColor(IDX_PLANT_POT,    235, 150, 120); // Terracotta pot
+  canvas_.setPaletteColor(IDX_PLANT_LEAF,   185, 212, 168); // Soft warm green leaves
+  canvas_.setPaletteColor(IDX_RUG,          255, 242, 205); // Sunny cream-yellow rug
+  canvas_.setPaletteColor(IDX_RUG_PATTERN,  255, 188, 180); // Soft coral rug pattern
+  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 218, 185, 150); // Warm beige window frame
+  canvas_.setPaletteColor(IDX_WINDOW_SKY,   255, 218, 200); // Warm sunset pink sky
+  canvas_.setPaletteColor(IDX_WINDOW_HILL,  208, 222, 178); // Warm olive-green hills
+  canvas_.setPaletteColor(IDX_SHADOW,       226, 196, 162); // Warm shadow on honey floor
+  canvas_.setPaletteColor(IDX_HEART,        255, 115, 125); // Warm cherry-red heart
+  canvas_.setPaletteColor(IDX_ZZZ,          235, 210, 140); // Cozy warm gold Zzz
+  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 170,  90); // Warm sunset sun
 
   step_ = 0;
   startStep();
