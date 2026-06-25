@@ -51,6 +51,7 @@ class CatPet {
   int batteryLevel_ = 100;
   bool charging_ = false;
   uint32_t batteryStamp_ = 0;
+  int foodLevel_ = 3;
 
   void nextStep();
   void startStep();
@@ -58,12 +59,19 @@ class CatPet {
 
   // drawing helpers (operate on canvas_)
   void drawRoom();
+  void drawWindow();
+  void drawRug();
+  void drawPlant();
+  void drawGarland();
   void drawPlate();
   void drawCat();
   void drawTail(int footCx, int originY);
   void drawEye(int ex, int ey, int eyeIndex, int gaze, Mood mood, bool closed);
   void drawLegs(int originX, int originY, bool walking, int legPhase);
   void drawBattery();
+  void drawHeart(int x, int y, uint8_t color);
+  void drawAngerVein(int x, int y, uint8_t color);
+  void drawSweatDrop(int x, int y, uint8_t color);
 };
 
 #endif  // CAT_PET_H_
