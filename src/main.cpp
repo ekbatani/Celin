@@ -1,38 +1,30 @@
 #include <M5Unified.h>
-#include <Avatar.h>
+#include "CatPet.h"
 
-using namespace m5avatar;
+CatPet pet;
 
-Avatar avatar;
+const unsigned long FRAME_MS = 40;  // ~25 fps
+unsigned long lastFrame = 0;
 
 void setup() {
     auto cfg = M5.config();
     M5.begin(cfg);
     M5.Display.setBrightness(128);
 
-    avatar.init();
-    avatar.setColorPalette(ColorPalette());
+    pet.begin();
 }
 
 void loop() {
-    // Button A: happy expression
     M5.update();
 
-    if (M5.BtnA.wasPressed()) {
-        avatar.setExpression(Expression::Happy);
-        delay(2000);
-        avatar.setExpression(Expression::Neutral);
-    }
+    if (M5.BtnA.wasPressed()) pet.pokeHappy();
+    if (M5.BtnB.wasPressed()) pet.pokeSleepy();
+    if (M5.BtnC.wasPressed()) pet.pokeAngry();
 
-    if (M5.BtnB.wasPressed()) {
-        avatar.setExpression(Expression::Sleepy);
-        delay(2000);
-        avatar.setExpression(Expression::Neutral);
-    }
-
-    if (M5.BtnC.wasPressed()) {
-        avatar.setExpression(Expression::Angry);
-        delay(2000);
-        avatar.setExpression(Expression::Neutral);
+    unsigned long now = millis();
+    if (now - lastFrame >= FRAME_MS) {
+        lastFrame = now;
+        pet.update();
+        pet.render();
     }
 }

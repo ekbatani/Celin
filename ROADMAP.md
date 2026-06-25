@@ -6,8 +6,12 @@ A fun, safe, AI-powered cat companion for kids, running on an M5Stack Core (ESP3
 
 ## Current State
 
-- PlatformIO project using the `M5Unified` and `M5Stack-Avatar` libraries.
-- One avatar face with 3 button-driven expressions (Happy / Sleepy / Angry) in [`src/main.cpp`](src/main.cpp).
+- PlatformIO project using `M5Unified`.
+- A tiny **pixel-art lilac cat** (Tamagotchi / codachi style) that walks around a cozy
+  room — floor + food plate — driven by a looping action state machine, with a
+  swishing tail and button-driven moods (Happy / Sleepy / Angry). See
+  [`src/CatPet.cpp`](src/CatPet.cpp). Rendered to a full-screen back-buffer for
+  flicker-free animation; main loop is non-blocking (`millis()`).
 - No WiFi, no time, no sound, no AI — all of these will be added from scratch.
 
 ### Hardware
@@ -29,8 +33,8 @@ The roadmap is split into 5 phases. Each phase builds on the previous one. The "
 | # | Goal | Technical notes | Depends on |
 |---|------|-----------------|------------|
 | ✅ | Initial button-driven expressions | Already in place | — |
-| ☐ | **Playful cat with white ears** | Custom face (`Face` / `Drawable`) in M5Stack-Avatar; add cat ears + white coloring. Remove blocking `delay()` calls from `loop()`. | — |
-| ☐ | **Battery level display** | `M5.Power.getBatteryLevel()` shown as an icon/percentage in a screen corner, refreshed every few seconds. | — |
+| ✅ | **Playful cat with white ears** | Custom face (`Face` / `Drawable`) in M5Stack-Avatar; add cat ears + white coloring. Remove blocking `delay()` calls from `loop()`. | — |
+| ✅ | **Battery level display** | `M5.Power.getBatteryLevel()` shown as an icon/percentage in a screen corner, refreshed every few seconds. | — |
 
 **Phase output:** A cute cat with personality that shows its charge and has a non-blocking main loop.
 
@@ -105,8 +109,8 @@ To keep `main.cpp` from getting crowded, split the code into modules:
 
 ```
 src/
-  main.cpp            ← setup + main loop (state machine)
-  CatFace.{h,cpp}     ← custom cat face with white ears
+  main.cpp            ← setup + non-blocking frame loop + buttons
+  CatPet.{h,cpp}      ← pixel-art cat sprite, room/food scene, action state machine
   Net.{h,cpp}         ← WiFi + NTP + time sync
   Weather.{h,cpp}     ← fetch and cache weather
   Messaging.{h,cpp}   ← Telegram bot (send/receive)
@@ -135,7 +139,7 @@ include/
 ## Full Goal Checklist
 
 - [ ] Have a day and night cycle — *Phase 1*
-- [ ] Be a playful cat with white ears — *Phase 0*
+- [x] Be a playful cat with white ears — *Phase 0*
 - [ ] Show the weather every few hours — *Phase 3*
 - [ ] Connect to WiFi — *Phase 1*
 - [ ] Press a button to put out food and have it go eat — *Phase 2*
@@ -145,7 +149,7 @@ include/
 - [ ] React if the weather is hot or cold — *Phase 3*
 - [ ] Sleep at night — *Phase 1*
 - [ ] Tell a story at night, then sleep — *Phase 5*
-- [ ] Show the battery level — *Phase 0*
+- [x] Show the battery level — *Phase 0*
 - [ ] Receive messages from us — *Phase 4*
 - [ ] Become a fun, safe AI personal assistant for kids — *Phase 5*
 - [ ] Connect to AI and answer our questions — *Phase 5*
