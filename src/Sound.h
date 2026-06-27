@@ -11,6 +11,7 @@ void happyMeow();
 void munch();
 void sleepyMeow();
 void playJingle();
+void notification();
 
 }  // namespace Sound
 

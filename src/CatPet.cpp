@@ -229,6 +229,10 @@ void CatPet::setBubble(const char* text, uint32_t durationMs) {
   bubbleUntil_ = millis() + durationMs;
 }
 
+void CatPet::showBubble(const char* text, uint32_t durationMs) {
+  setBubble(text, durationMs);
+}
+
 void CatPet::setWeather(float temp, int conditionId) {
   weatherTemp_ = temp;
   weatherCondition_ = conditionId;

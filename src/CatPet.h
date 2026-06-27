@@ -34,6 +34,8 @@ class CatPet {
 
   void setWeather(float temp, int conditionId);
 
+  void showBubble(const char* text, uint32_t durationMs);
+
  private:
   M5Canvas canvas_{&M5.Display};
 

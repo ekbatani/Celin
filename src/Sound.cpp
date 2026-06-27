@@ -70,3 +70,8 @@ void Sound::playJingle() {
       {523, 80, 30}, {659, 80, 30}, {784, 100, 30}, {1047, 150, 0}};
   play(notes, 4);
 }
+
+void Sound::notification() {
+  static const Note notes[] = {{1200, 80, 40}, {1600, 120, 0}};
+  play(notes, 2);
+}

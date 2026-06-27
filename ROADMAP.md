@@ -83,8 +83,8 @@ The roadmap is split into 5 phases. Each phase builds on the previous one. The "
 
 | # | Goal | Technical notes | Depends on |
 |---|------|-----------------|------------|
-| ☐ | **Message mom & dad** | Telegram bot (the `UniversalTelegramBot` library). On an event (e.g. a button press or a specific occurrence) it sends a message to the parents' chat. | WiFi |
-| ☐ | **Receive messages from us** | The same Telegram bot reads incoming messages and shows them as a speech bubble on screen + a notification sound. | WiFi, Sound |
+| ✅ | **Message mom & dad** | Telegram bot (`UniversalTelegramBot` library). Long-press Button A sends "I love you!", long-press Button B sends "Come play with me!" — speech bubble confirms on screen. See [`src/Messaging.cpp`](src/Messaging.cpp). | WiFi |
+| ✅ | **Receive messages from us** | The same Telegram bot polls for incoming messages every 10 s. New messages appear as a speech bubble (5 s) with a notification chime. If the cat is asleep, the message wakes it. Only messages from the configured `TELEGRAM_CHAT_ID` are accepted. | WiFi, Sound |
 
 **Phase output:** Two-way communication between the cat and the parents via Telegram.
 
@@ -148,12 +148,12 @@ include/
 - [x] Press a button to put out food and have it go eat — *Phase 2*
 - [x] A button to play — *Phase 2*
 - [x] Go to sleep — *Phase 2*
-- [ ] Message mom and dad — *Phase 4*
+- [x] Message mom and dad — *Phase 4*
 - [x] React if the weather is hot or cold — *Phase 3*
 - [x] Sleep at night — *Phase 1*
 - [ ] Tell a story at night, then sleep — *Phase 5*
 - [x] Show the battery level — *Phase 0*
-- [ ] Receive messages from us — *Phase 4*
+- [x] Receive messages from us — *Phase 4*
 - [ ] Become a fun, safe AI personal assistant for kids — *Phase 5*
 - [ ] Connect to AI and answer our questions — *Phase 5*
 

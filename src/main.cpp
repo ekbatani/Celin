@@ -1,5 +1,6 @@
 #include <M5Unified.h>
 #include "CatPet.h"
+#include "Messaging.h"
 #include "Net.h"
 #include "Sound.h"
 #include "Weather.h"
@@ -24,19 +25,40 @@ void setup() {
     Net::begin();
     Sound::begin();
     Weather::begin();
+    Messaging::begin();
 }
 
 void loop() {
     M5.update();
+
+    Messaging::update();
+    if (Messaging::hasNewMessage()) {
+        if (pet.isManualSleeping()) pet.wakeUp();
+        pet.showBubble(Messaging::getLastMessage(), 5000);
+        Sound::notification();
+        Messaging::clearMessage();
+    }
 
     if (pet.isManualSleeping()) {
         if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed() || M5.BtnC.wasPressed()) {
             pet.wakeUp();
         }
     } else if (!pet.isNightMode()) {
-        if (M5.BtnA.wasPressed()) pet.triggerFeed();
-        if (M5.BtnB.wasPressed()) pet.triggerPlay();
-        if (M5.BtnC.wasPressed()) pet.triggerSleep();
+        if (M5.BtnA.wasHold()) {
+            Messaging::sendMessage("\xf0\x9f\x90\xb1 Meow! I love you!");
+            pet.showBubble("Love you!", 3000);
+            Sound::happyMeow();
+        } else if (M5.BtnB.wasHold()) {
+            Messaging::sendMessage("\xf0\x9f\x90\xb1 Come play with me!");
+            pet.showBubble("Play time!", 3000);
+            Sound::happyMeow();
+        } else if (M5.BtnA.wasClicked()) {
+            pet.triggerFeed();
+        } else if (M5.BtnB.wasClicked()) {
+            pet.triggerPlay();
+        } else if (M5.BtnC.wasClicked()) {
+            pet.triggerSleep();
+        }
     }
 
     Net::update();

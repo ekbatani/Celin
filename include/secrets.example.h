@@ -15,4 +15,13 @@
 #define OPENWEATHER_API_KEY "your-api-key"
 #define WEATHER_CITY "Amsterdam,NL"
 
+// Telegram bot: https://core.telegram.org/bots#how-do-i-create-a-bot
+// 1. Message @BotFather on Telegram, /newbot, follow the prompts.
+// 2. Copy the bot token below.
+// 3. Send a message to your bot, then visit:
+//    https://api.telegram.org/bot<TOKEN>/getUpdates
+//    to find your chat_id in the response JSON.
+#define TELEGRAM_BOT_TOKEN "123456789:AABBccDDeeFFggHHiiJJkkLLmmNNooP"
+#define TELEGRAM_CHAT_ID "123456789"
+
 #endif  // SECRETS_H_
