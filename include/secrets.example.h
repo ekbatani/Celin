@@ -24,4 +24,9 @@
 #define TELEGRAM_BOT_TOKEN "123456789:AABBccDDeeFFggHHiiJJkkLLmmNNooP"
 #define TELEGRAM_CHAT_ID "123456789"
 
+// Claude API: https://console.anthropic.com/
+// Used for bedtime stories and AI Q&A (Phase 5).
+// The key is stored on the device — for better security, use a proxy server.
+#define CLAUDE_API_KEY "sk-ant-api03-your-key-here"
+
 #endif  // SECRETS_H_

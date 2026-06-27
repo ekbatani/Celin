@@ -21,7 +21,7 @@ static bool firstPoll_ = true;
 static const uint32_t POLL_INTERVAL = 10000;
 static const uint32_t FIRST_POLL_DELAY = 15000;
 
-static const int MSG_BUF_LEN = 48;
+static const int MSG_BUF_LEN = 200;
 static char lastMsg_[MSG_BUF_LEN] = {};
 static bool newMessage_ = false;
 

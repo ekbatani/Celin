@@ -75,3 +75,9 @@ void Sound::notification() {
   static const Note notes[] = {{1200, 80, 40}, {1600, 120, 0}};
   play(notes, 2);
 }
+
+void Sound::storyChime() {
+  static const Note notes[] = {
+      {784, 120, 60}, {659, 120, 60}, {523, 120, 60}, {440, 200, 0}};
+  play(notes, 4);
+}

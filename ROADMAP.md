@@ -15,7 +15,7 @@ A fun, safe, AI-powered cat companion for kids, running on an M5Stack Core (ESP3
 - **WiFi + NTP time sync** with auto-reconnect, connection-status icon, and a full day/night cycle: at night (20:00–07:00) the palette shifts to moonlit blues/purples, the window shows a crescent moon and twinkling stars, the cat goes sleepy, and the display dims. See [`src/Net.cpp`](src/Net.cpp).
 - **Interactive buttons**: Button A feeds the cat (walks to plate, eats, restores hunger), Button B plays (bouncing animation with jingle), Button C puts it to sleep (any button wakes). Speech bubbles, hunger system (decreases over time), and sound effects via [`src/Sound.cpp`](src/Sound.cpp).
 - **Weather display**: Fetches temperature and conditions from OpenWeatherMap every 2 hours. Shows a weather icon + temperature in the top-left corner. Cat shivers when cold (<5°C) and sweats when hot (>30°C). See [`src/Weather.cpp`](src/Weather.cpp).
-- No AI — this will be added in later phases.
+- **AI assistant (Phase 5)**: Claude API (Haiku 4.5) via HTTPS. Bedtime stories narrated in speech-bubble pages at 20:00. Q&A via Telegram `/ask <question>` — responses shown on screen and sent back via Telegram. Kid-safe "Mochi" personality enforced by system prompt. On-demand stories via `/story`. See [`src/AiClient.cpp`](src/AiClient.cpp).
 
 ### Hardware
 - **Board:** M5Stack Core V2.7 (ESP32-D0WDQ6-V3) — port `/dev/ttyACM0` @ 115200.
@@ -96,13 +96,13 @@ The roadmap is split into 5 phases. Each phase builds on the previous one. The "
 
 | # | Goal | Technical notes | Depends on |
 |---|------|-----------------|------------|
-| ☐ | **Tell a story at night** | At night before sleep, fetch a short story from the Claude API (or pick from a locally stored list for offline mode) and narrate it on screen/with sound. | WiFi, Day & night |
-| ☐ | **AI assistant that answers our questions** | Connect to the **Claude API** (a low-cost model like Haiku for fast replies). Input: text from Telegram (or voice, if a mic is added). Output: text on screen + sound. | WiFi, Telegram |
-| ☐ | **Fun, kid-safe personality** | A strict system prompt: kind and child-friendly tone, inappropriate-content filtering, short and simple answers. Topic restrictions. | AI assistant |
+| ✅ | **Tell a story at night** | At bedtime (20:00), the cat tells a short AI-generated story in speech-bubble pages before sleeping. Also triggerable via Telegram `/story`. Story is sent to Telegram too. See [`src/AiClient.cpp`](src/AiClient.cpp). | WiFi, Day & night |
+| ✅ | **AI assistant that answers our questions** | Claude API (Haiku 4.5) via HTTPS. Input: Telegram `/ask <question>`. Output: paged speech bubbles on screen + Telegram reply. See [`src/AiClient.cpp`](src/AiClient.cpp). | WiFi, Telegram |
+| ✅ | **Fun, kid-safe personality** | System prompt as "Mochi" — kind, playful, child-friendly tone, 180-char limit, inappropriate-content filtering, simple words. See [`src/AiClient.cpp`](src/AiClient.cpp). | AI assistant |
 
 **Phase output:** The cat becomes a smart friend that tells stories and safely answers kids' questions.
 
-> **AI note:** Calling the API directly from the ESP32 is possible (HTTPS), but keeping the API key on the device is a security risk. The safer option: a lightweight proxy (e.g. a small Worker/server) that holds the key, enforces the safety system prompt, and is the only thing the ESP32 talks to.
+> **AI note:** The API key is currently stored on the device in `secrets.h`. For better security, consider adding a lightweight proxy (e.g. a Cloudflare Worker) that holds the key and enforces the safety system prompt.
 
 ---
 
@@ -151,11 +151,11 @@ include/
 - [x] Message mom and dad — *Phase 4*
 - [x] React if the weather is hot or cold — *Phase 3*
 - [x] Sleep at night — *Phase 1*
-- [ ] Tell a story at night, then sleep — *Phase 5*
+- [x] Tell a story at night, then sleep — *Phase 5*
 - [x] Show the battery level — *Phase 0*
 - [x] Receive messages from us — *Phase 4*
-- [ ] Become a fun, safe AI personal assistant for kids — *Phase 5*
-- [ ] Connect to AI and answer our questions — *Phase 5*
+- [x] Become a fun, safe AI personal assistant for kids — *Phase 5*
+- [x] Connect to AI and answer our questions — *Phase 5*
 
 ---
 

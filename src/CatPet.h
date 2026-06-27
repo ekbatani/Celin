@@ -36,6 +36,9 @@ class CatPet {
 
   void showBubble(const char* text, uint32_t durationMs);
 
+  void setStoryMode(bool story);
+  bool isStoryMode() const { return storyMode_; }
+
  private:
   M5Canvas canvas_{&M5.Display};
 
@@ -81,6 +84,7 @@ class CatPet {
   uint32_t interactiveStart_ = 0;
   float returnX_ = 60.0f;
   bool manualSleep_ = false;
+  bool storyMode_ = false;
 
   // --- speech bubble ---
   const char* bubbleText_ = nullptr;

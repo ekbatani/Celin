@@ -12,6 +12,7 @@ void munch();
 void sleepyMeow();
 void playJingle();
 void notification();
+void storyChime();
 
 }  // namespace Sound
 

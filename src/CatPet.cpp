@@ -239,8 +239,12 @@ void CatPet::setWeather(float temp, int conditionId) {
   hasWeather_ = true;
 }
 
+void CatPet::setStoryMode(bool story) { storyMode_ = story; }
+
 CatPet::Mood CatPet::currentMood() const {
   if (millis() < moodUntil_) return mood_;
+
+  if (storyMode_) return Mood::Happy;
 
   if (nightMode_ || manualSleep_) return Mood::Sleepy;
 
