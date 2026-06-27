@@ -1,6 +1,9 @@
 #include "CatPet.h"
+#include "Sound.h"
 
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 // ---- palette indices (8-bit sprite) ----
 static const uint8_t IDX_WALL = 0;
@@ -55,29 +58,31 @@ static const uint8_t BODY_MAP[BODY_ROWS][BODY_W] = {
     {  0, 0, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 0, 0 },
 };
 
-// Looping behaviour script. Walk steps carry a target x; the rest carry a
-// duration in ms.
+// Idle behaviour script. Eat/Play are now interactive (button-triggered).
 struct ScriptStep {
   CatPet::Action action;
   int arg;
 };
-// NOTE: kept in the .cpp; Action is private but this struct is file-local.
 static const ScriptStep SCRIPT[] = {
-    {CatPet::Action::Walk, 55},
-    {CatPet::Action::Sit, 2600},
-    {CatPet::Action::Walk, 245},  // head to the food plate
-    {CatPet::Action::Eat, 4200},
+    {CatPet::Action::Walk, 60},
+    {CatPet::Action::Sit, 3000},
+    {CatPet::Action::Walk, 200},
+    {CatPet::Action::Sit, 2500},
+    {CatPet::Action::Walk, 100},
+    {CatPet::Action::Sit, 2000},
+    {CatPet::Action::Walk, 260},
+    {CatPet::Action::Sit, 2800},
     {CatPet::Action::Walk, 150},
-    {CatPet::Action::Play, 2800},
     {CatPet::Action::Sit, 2200},
-    {CatPet::Action::Walk, 270},
-    {CatPet::Action::Sit, 1800},
 };
 static const int SCRIPT_LEN = sizeof(SCRIPT) / sizeof(SCRIPT[0]);
 
 static const float WALK_SPEED = 2.2f;
 static const uint32_t BLINK_INTERVAL = 3200;
 static const uint32_t BLINK_LEN = 160;
+static const uint32_t HUNGER_TICK_MS = 180000;  // 3 min between hunger ticks
+static const float TEMP_HOT = 30.0f;
+static const float TEMP_COLD = 5.0f;
 
 void CatPet::applyDayPalette() {
   canvas_.setPaletteColor(IDX_WALL,         255, 232, 218);
@@ -136,6 +141,8 @@ void CatPet::begin() {
   applyDayPalette();
 
   step_ = 0;
+  hunger_ = 100;
+  lastHungerTick_ = millis();
   startStep();
 }
 
@@ -146,16 +153,8 @@ void CatPet::startStep() {
     target_ = s.arg;
     dir_ = (target_ >= (int)x_) ? 1 : -1;
     walking_ = true;
-    
-    // Refill food plate when heading to the plate
-    if (target_ == 245) {
-      foodLevel_ = 3;
-    }
   } else {
     walking_ = false;
-    if (s.action == Action::Eat) {
-      dir_ = 1;  // face the plate
-    }
   }
 }
 
@@ -179,30 +178,78 @@ void CatPet::setWifiStatus(bool connected, bool timeSynced) {
   timeSynced_ = timeSynced;
 }
 
-void CatPet::pokeHappy() {
+// ---- interactive actions ----
+
+void CatPet::triggerFeed() {
+  if (interactive_ != Interactive::None) return;
+  returnX_ = x_;
+  interactive_ = Interactive::FeedWalk;
+  interactiveStart_ = millis();
+  target_ = 245;
+  dir_ = (target_ >= (int)x_) ? 1 : -1;
+  walking_ = true;
+  Sound::meow();
+}
+
+void CatPet::triggerPlay() {
+  if (interactive_ != Interactive::None) return;
+  interactive_ = Interactive::PlayBounce;
+  interactiveStart_ = millis();
   mood_ = Mood::Happy;
-  moodUntil_ = millis() + 2000;
+  moodUntil_ = millis() + 3500;
+  Sound::playJingle();
+  setBubble("Wheee!", 2500);
 }
-void CatPet::pokeSleepy() {
-  mood_ = Mood::Sleepy;
-  moodUntil_ = millis() + 2500;
+
+void CatPet::triggerSleep() {
+  if (interactive_ != Interactive::None) return;
+  interactive_ = Interactive::SleepWalk;
+  interactiveStart_ = millis();
+  target_ = 150;
+  dir_ = (target_ >= (int)x_) ? 1 : -1;
+  walking_ = true;
+  Sound::sleepyMeow();
 }
-void CatPet::pokeAngry() {
-  mood_ = Mood::Angry;
-  moodUntil_ = millis() + 2000;
+
+void CatPet::wakeUp() {
+  manualSleep_ = false;
+  interactive_ = Interactive::None;
+  walking_ = false;
+  hop_ = 0;
+  mood_ = Mood::Happy;
+  moodUntil_ = millis() + 1500;
+  bubbleText_ = nullptr;
+  Sound::happyMeow();
+  setBubble("Meow!", 1500);
+  startStep();
+}
+
+void CatPet::setBubble(const char* text, uint32_t durationMs) {
+  bubbleText_ = text;
+  bubbleUntil_ = millis() + durationMs;
+}
+
+void CatPet::setWeather(float temp, int conditionId) {
+  weatherTemp_ = temp;
+  weatherCondition_ = conditionId;
+  hasWeather_ = true;
 }
 
 CatPet::Mood CatPet::currentMood() const {
   if (millis() < moodUntil_) return mood_;
 
-  if (nightMode_) return Mood::Sleepy;
+  if (nightMode_ || manualSleep_) return Mood::Sleepy;
 
   if (batteryLevel_ < 20) return Mood::Sad;
 
-  switch (SCRIPT[step_].action) {
-    case Action::Eat:
-    case Action::Play:
+  if (hunger_ < 25) return Mood::Sad;
+
+  switch (interactive_) {
+    case Interactive::FeedEat:
+    case Interactive::PlayBounce:
       return Mood::Happy;
+    case Interactive::SleepRest:
+      return Mood::Sleepy;
     default:
       return Mood::Neutral;
   }
@@ -220,6 +267,29 @@ void CatPet::update() {
     batteryStamp_ = now;
   }
 
+  // Hunger tick (only when awake).
+  if (!manualSleep_ && !nightMode_) {
+    if (now - lastHungerTick_ >= HUNGER_TICK_MS) {
+      lastHungerTick_ = now;
+      if (hunger_ > 0) hunger_ -= 10;
+    }
+  }
+
+  // Update food plate from hunger (except during eat animation).
+  if (interactive_ != Interactive::FeedEat) {
+    if (hunger_ >= 75) foodLevel_ = 3;
+    else if (hunger_ >= 50) foodLevel_ = 2;
+    else if (hunger_ >= 25) foodLevel_ = 1;
+    else foodLevel_ = 0;
+  }
+
+  // Hungry meow.
+  if (hunger_ < 25 && interactive_ == Interactive::None && !manualSleep_ &&
+      !nightMode_ && !bubbleText_ && frame_ % 200 == 0) {
+    setBubble("Meow?", 2000);
+    Sound::meow();
+  }
+
   // Blink scheduling (suppressed while sleepy).
   if (!blinking_ && now - blinkStart_ >= BLINK_INTERVAL) {
     blinking_ = true;
@@ -229,47 +299,113 @@ void CatPet::update() {
     blinkStart_ = now;
   }
 
-  const ScriptStep& s = SCRIPT[step_];
-  switch (s.action) {
-    case Action::Walk: {
-      float dx = target_ - x_;
-      if (fabsf(dx) <= WALK_SPEED) {
-        x_ = target_;
-        walking_ = false;
-        nextStep();
-      } else {
-        x_ += (dx > 0 ? WALK_SPEED : -WALK_SPEED);
+  // Interactive actions override the script.
+  if (interactive_ != Interactive::None) {
+    switch (interactive_) {
+      case Interactive::FeedWalk: {
+        float dx = 245.0f - x_;
+        if (fabsf(dx) <= WALK_SPEED) {
+          x_ = 245.0f;
+          walking_ = false;
+          interactive_ = Interactive::FeedEat;
+          interactiveStart_ = now;
+          dir_ = 1;
+          Sound::munch();
+          setBubble("Yum!", 3000);
+        } else {
+          x_ += (dx > 0 ? WALK_SPEED : -WALK_SPEED);
+          dir_ = dx > 0 ? 1 : -1;
+        }
+        hop_ = (frame_ % 6 < 3) ? -2.0f : 0.0f;
+        break;
       }
-      // Bob up and down while walking to make it feel organic!
-      hop_ = (frame_ % 6 < 3) ? -2.0f : 0.0f;
-      break;
+      case Interactive::FeedEat: {
+        hop_ = (((now - interactiveStart_) / 180) % 2) ? 2.0f : 0.0f;
+        uint32_t elapsed = now - interactiveStart_;
+        if (elapsed < 1000) foodLevel_ = 3;
+        else if (elapsed < 2000) foodLevel_ = 2;
+        else if (elapsed < 2800) foodLevel_ = 1;
+        else foodLevel_ = 0;
+        if (elapsed >= 3000) {
+          hunger_ = 100;
+          interactive_ = Interactive::FeedReturn;
+          target_ = (int)returnX_;
+          dir_ = (target_ >= (int)x_) ? 1 : -1;
+          walking_ = true;
+        }
+        break;
+      }
+      case Interactive::FeedReturn: {
+        float dx = returnX_ - x_;
+        if (fabsf(dx) <= WALK_SPEED) {
+          x_ = returnX_;
+          walking_ = false;
+          interactive_ = Interactive::None;
+          startStep();
+        } else {
+          x_ += (dx > 0 ? WALK_SPEED : -WALK_SPEED);
+          dir_ = dx > 0 ? 1 : -1;
+        }
+        hop_ = (frame_ % 6 < 3) ? -2.0f : 0.0f;
+        break;
+      }
+      case Interactive::PlayBounce: {
+        float t = (now - interactiveStart_) / 260.0f;
+        hop_ = -fabsf(sinf(t * 3.14159f)) * 12.0f;
+        if (((now - interactiveStart_) / 800) % 2 == 0)
+          dir_ = 1;
+        else
+          dir_ = -1;
+        if (now - interactiveStart_ >= 3000) {
+          interactive_ = Interactive::None;
+          hop_ = 0;
+          startStep();
+        }
+        break;
+      }
+      case Interactive::SleepWalk: {
+        float dx = 150.0f - x_;
+        if (fabsf(dx) <= WALK_SPEED) {
+          x_ = 150.0f;
+          walking_ = false;
+          interactive_ = Interactive::SleepRest;
+          manualSleep_ = true;
+          Sound::sleepyMeow();
+        } else {
+          x_ += (dx > 0 ? WALK_SPEED : -WALK_SPEED);
+          dir_ = dx > 0 ? 1 : -1;
+        }
+        hop_ = (frame_ % 6 < 3) ? -2.0f : 0.0f;
+        break;
+      }
+      case Interactive::SleepRest:
+        hop_ = 0;
+        break;
+      default:
+        break;
     }
-    case Action::Play: {
-      // Series of little hops.
-      float t = (now - stepStart_) / 260.0f;
-      hop_ = -fabsf(sinf(t * 3.14159f)) * 9.0f;
-      if (now - stepStart_ >= (uint32_t)s.arg) nextStep();
-      break;
-    }
-    case Action::Eat: {
-      // Munch: gentle vertical bob toward the plate.
-      hop_ = (((now - stepStart_) / 180) % 2) ? 2.0f : 0.0f;
-      
-      // Decrease food level during eating (4200ms duration)
-      uint32_t elapsed = now - stepStart_;
-      if (elapsed < 1400) foodLevel_ = 3;
-      else if (elapsed < 2800) foodLevel_ = 2;
-      else if (elapsed < 4000) foodLevel_ = 1;
-      else foodLevel_ = 0;
-
-      if (now - stepStart_ >= (uint32_t)s.arg) nextStep();
-      break;
-    }
-    case Action::Sit:
-    default: {
-      hop_ = 0.0f;
-      if (now - stepStart_ >= (uint32_t)s.arg) nextStep();
-      break;
+  } else if (!manualSleep_) {
+    // Normal idle script.
+    const ScriptStep& s = SCRIPT[step_];
+    switch (s.action) {
+      case Action::Walk: {
+        float dx = target_ - x_;
+        if (fabsf(dx) <= WALK_SPEED) {
+          x_ = target_;
+          walking_ = false;
+          nextStep();
+        } else {
+          x_ += (dx > 0 ? WALK_SPEED : -WALK_SPEED);
+        }
+        hop_ = (frame_ % 6 < 3) ? -2.0f : 0.0f;
+        break;
+      }
+      case Action::Sit:
+      default: {
+        hop_ = 0.0f;
+        if (now - stepStart_ >= (uint32_t)s.arg) nextStep();
+        break;
+      }
     }
   }
 }
@@ -348,7 +484,7 @@ void CatPet::drawWindow() {
       canvas_.drawFastVLine(x, hillY, (iy + ih) - hillY, IDX_WINDOW_HILL);
     }
   }
-  
+
   // Draw pane separator frame lines (wooden cross)
   canvas_.drawFastVLine(wx + ww / 2 - 2, wy + 6, wh - 12, IDX_WINDOW_FRAME);
   canvas_.drawFastVLine(wx + ww / 2 - 1, wy + 6, wh - 12, IDX_WINDOW_FRAME);
@@ -363,7 +499,7 @@ void CatPet::drawRug() {
   // Inner pattern oval
   canvas_.fillEllipse(rx, ry, rw - 15, rh - 4, IDX_RUG_PATTERN);
   canvas_.fillEllipse(rx, ry, rw - 35, rh - 8, IDX_RUG);
-  
+
   // Cute fringes on the left and right sides of the rug
   for (int dy = -rh + 3; dy <= rh - 3; dy += 3) {
     canvas_.drawFastHLine(rx - rw - 3, ry + dy, 3, IDX_RUG_PATTERN);
@@ -373,15 +509,15 @@ void CatPet::drawRug() {
 
 void CatPet::drawPlant() {
   int px = 30, py = FLOOR_Y - 18;
-  
+
   // Draw the pot
   canvas_.fillRect(px, py, 16, 18, IDX_PLANT_POT);
   canvas_.fillRect(px - 2, py, 20, 4, IDX_PLANT_POT); // rim
   canvas_.fillRect(px + 2, py + 18, 12, 2, IDX_SHADOW); // base shadow
-  
+
   // Draw stems and leaves that sway
   float sway = sinf(frame_ * 0.06f) * 3.0f;
-  
+
   // Stem 1 (center-left)
   int sx1 = px + 8;
   int sy1 = py;
@@ -392,13 +528,13 @@ void CatPet::drawPlant() {
   canvas_.fillCircle(tx1, ty1, 5, IDX_PLANT_LEAF);
   canvas_.fillCircle(tx1 - 5, ty1 + 5, 4, IDX_PLANT_LEAF);
   canvas_.fillCircle(tx1 + 5, ty1 + 3, 4, IDX_PLANT_LEAF);
-  
+
   // Stem 2 (leaning left)
   int tx2 = sx1 - 10 + (int)(sway * 0.8f);
   int ty2 = py - 12;
   canvas_.drawLine(sx1, sy1, tx2, ty2, IDX_PLANT_LEAF);
   canvas_.fillCircle(tx2, ty2, 4, IDX_PLANT_LEAF);
-  
+
   // Stem 3 (leaning right)
   int tx3 = sx1 + 10 + (int)(sway * 0.8f);
   int ty3 = py - 14;
@@ -410,13 +546,13 @@ void CatPet::drawGarland() {
   int gy = 12;
   // String line
   canvas_.drawLine(0, gy, 320, gy, IDX_LINE);
-  
+
   // Draw little flag triangles along the line
   static const int flagX[] = {40, 80, 120, 160, 200, 240, 280};
   static const uint8_t flagColors[] = {IDX_PINK, IDX_RUG, IDX_PLATE, IDX_HEART, IDX_PLANT_LEAF, IDX_RUG_PATTERN, IDX_PINK};
-  
+
   float sway = sinf(frame_ * 0.08f) * 2.0f;
-  
+
   for (int i = 0; i < 7; i++) {
     int fx = flagX[i];
     int fy = gy;
@@ -499,10 +635,10 @@ void CatPet::drawEye(int ex, int ey, int eyeIndex, int gaze, Mood mood,
   int col = 1 + gaze;
   if (col < 0) col = 0;
   if (col > 2) col = 2;
-  
+
   // Draw 1x2 pupil
   canvas_.fillRect(ex + col * PX, ey + PX, PX, 2 * PX, IDX_BLACK);
-  
+
   // Draw iris highlight below the pupil (on row 2)
   canvas_.fillRect(ex + col * PX, ey + 2 * PX, PX, PX, IDX_ZZZ); // Blue iris highlight
 
@@ -559,15 +695,19 @@ void CatPet::drawSweatDrop(int x, int y, uint8_t color) {
 }
 
 void CatPet::drawCat() {
-  int footCx = (int)x_;
+  int shiver = 0;
+  if (hasWeather_ && weatherTemp_ < TEMP_COLD) {
+    shiver = (frame_ % 4 < 2) ? -1 : 1;
+  }
+  int footCx = (int)x_ + shiver;
   int originX = footCx - (BODY_W * PX) / 2;
-  
+
   // Idle breathing bob:
   float breathY = 0.0f;
   if (!walking_) {
     breathY = sinf(frame_ * 0.1f) * 1.5f;
   }
-  
+
   int originY = FLOOR_Y - CAT_PIX_H + (int)hop_ + (int)breathY;
 
   bool walking = walking_;
@@ -581,7 +721,7 @@ void CatPet::drawCat() {
   canvas_.fillEllipse(footCx, FLOOR_Y + 1, shadowW, shadowH, IDX_SHADOW);
 
   // Tail behind everything.
-  drawTail(footCx, originY - (int)breathY); // Tail attached to body frame, ignore breathing bob for tail base stability
+  drawTail(footCx, originY - (int)breathY);
 
   // Legs (under the body).
   drawLegs(originX, originY, walking, legPhase);
@@ -603,8 +743,8 @@ void CatPet::drawCat() {
   Mood mood = currentMood();
   bool closed = blinking_;
   int gaze = walking ? dir_ : 0;
-  if (SCRIPT[step_].action == Action::Eat && millis() >= moodUntil_) {
-    closed = true;  // content, eyes shut while munching
+  if (interactive_ == Interactive::FeedEat && millis() >= moodUntil_) {
+    closed = true;
   }
   int eyeRow = 4;
   drawEye(originX + 3 * PX, originY + eyeRow * PX, 0, gaze, mood, closed);
@@ -649,26 +789,37 @@ void CatPet::drawCat() {
       drawSweatDrop(sx, sy, IDX_ZZZ);
     }
   }
+
+  if (hasWeather_ && weatherTemp_ > TEMP_HOT) {
+    uint32_t dp = frame_ % 30;
+    if (dp < 20) {
+      drawSweatDrop(footCx + 18, originY + 5 + (int)(dp * 1.5f), IDX_ZZZ);
+    }
+    dp = (frame_ + 15) % 30;
+    if (dp < 20) {
+      drawSweatDrop(footCx - 20, originY + 8 + (int)(dp * 1.5f), IDX_ZZZ);
+    }
+  }
 }
 
 void CatPet::drawBattery() {
   int x = 278, y = 12, w = 30, h = 14;
   canvas_.drawRoundRect(x, y, w, h, 3, IDX_LINE);
   canvas_.fillRect(x + w, y + 4, 2, h - 8, IDX_LINE);  // nub
-  
+
   uint8_t fillCol = IDX_PLATE; // good (mint)
   if (batteryLevel_ < 25) {
     fillCol = IDX_HEART; // low (cherry pink)
   } else if (batteryLevel_ < 60) {
     fillCol = IDX_FOOD; // medium (pastel orange)
   }
-  
+
   int maxFillW = w - 6;
   int fillw = (int)(maxFillW * (batteryLevel_ / 100.0f));
   if (fillw > 0) {
     canvas_.fillRect(x + 3, y + 3, fillw, h - 6, fillCol);
   }
-  
+
   if (charging_) {
     if ((frame_ / 10) % 2 == 0) {
       int cx = x + w / 2;
@@ -703,6 +854,106 @@ void CatPet::drawWifiIcon() {
   canvas_.fillRect(x - 1, y + 9, 3, 3, col);
 }
 
+void CatPet::drawSpeechBubble() {
+  if (!bubbleText_) return;
+  if (millis() >= bubbleUntil_) {
+    bubbleText_ = nullptr;
+    return;
+  }
+
+  int len = strlen(bubbleText_);
+  int tw = len * 6;
+  int bw = tw + 10;
+  int bh = 16;
+  int bx = (int)x_ - bw / 2;
+  int by = FLOOR_Y - CAT_PIX_H + (int)hop_ - 22;
+
+  if (bx < 2) bx = 2;
+  if (bx + bw > SCR_W - 2) bx = SCR_W - bw - 2;
+  if (by < 2) by = 2;
+
+  canvas_.fillRoundRect(bx, by, bw, bh, 4, IDX_WHITE);
+  canvas_.drawRoundRect(bx, by, bw, bh, 4, IDX_LINE);
+
+  int px = (int)x_;
+  if (px < bx + 5) px = bx + 5;
+  if (px > bx + bw - 5) px = bx + bw - 5;
+  canvas_.fillTriangle(px - 3, by + bh, px + 3, by + bh, px, by + bh + 5,
+                       IDX_WHITE);
+  canvas_.drawLine(px - 3, by + bh, px, by + bh + 5, IDX_LINE);
+  canvas_.drawLine(px + 3, by + bh, px, by + bh + 5, IDX_LINE);
+
+  canvas_.setTextColor(IDX_BLACK);
+  canvas_.setTextSize(1);
+  canvas_.setCursor(bx + 5, by + 4);
+  canvas_.print(bubbleText_);
+}
+
+void CatPet::drawWeather() {
+  if (!hasWeather_) return;
+
+  int x = 5, y = 28;
+  int cond = weatherCondition_;
+
+  if (cond == 800) {
+    canvas_.fillCircle(x + 5, y + 4, 3, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 5, y, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 5, y + 8, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 1, y + 4, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 9, y + 4, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 2, y + 1, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 8, y + 1, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 2, y + 7, IDX_WINDOW_SUN);
+    canvas_.drawPixel(x + 8, y + 7, IDX_WINDOW_SUN);
+  } else if (cond >= 600 && cond < 700) {
+    canvas_.fillCircle(x + 3, y + 3, 3, IDX_WHITE);
+    canvas_.fillCircle(x + 7, y + 2, 3, IDX_WHITE);
+    int off = (frame_ / 8) % 3;
+    canvas_.drawPixel(x + 2, y + 7 + off, IDX_WHITE);
+    canvas_.drawPixel(x + 5, y + 8 + off, IDX_WHITE);
+    canvas_.drawPixel(x + 8, y + 7 + off, IDX_WHITE);
+  } else if (cond >= 700) {
+    canvas_.fillCircle(x + 3, y + 4, 3, IDX_WHITE);
+    canvas_.fillCircle(x + 7, y + 3, 4, IDX_WHITE);
+    canvas_.drawCircle(x + 7, y + 3, 4, IDX_LINE);
+  } else {
+    canvas_.fillCircle(x + 3, y + 3, 3, IDX_WHITE);
+    canvas_.fillCircle(x + 7, y + 2, 3, IDX_WHITE);
+    int off = (frame_ / 4) % 4;
+    canvas_.drawFastVLine(x + 2, y + 7 + off, 2, IDX_LINE);
+    canvas_.drawFastVLine(x + 5, y + 8 + off, 2, IDX_LINE);
+    canvas_.drawFastVLine(x + 8, y + 7 + off, 2, IDX_LINE);
+  }
+
+  canvas_.setTextColor(IDX_LINE);
+  canvas_.setTextSize(1);
+  canvas_.setCursor(x + 13, y + 1);
+  char buf[8];
+  snprintf(buf, sizeof(buf), "%dC", (int)roundf(weatherTemp_));
+  canvas_.print(buf);
+}
+
+void CatPet::drawButtonLabels() {
+  if (nightMode_) return;
+  canvas_.setTextColor(IDX_LINE);
+  canvas_.setTextSize(1);
+  if (manualSleep_) {
+    canvas_.setCursor(40, 230);
+    canvas_.print("Wake");
+    canvas_.setCursor(145, 230);
+    canvas_.print("Wake");
+    canvas_.setCursor(250, 230);
+    canvas_.print("Wake");
+  } else {
+    canvas_.setCursor(40, 230);
+    canvas_.print("Feed");
+    canvas_.setCursor(147, 230);
+    canvas_.print("Play");
+    canvas_.setCursor(245, 230);
+    canvas_.print("Sleep");
+  }
+}
+
 void CatPet::render() {
   drawRoom();
   drawWindow();
@@ -711,7 +962,10 @@ void CatPet::render() {
   drawGarland();
   drawPlate();
   drawCat();
+  drawSpeechBubble();
   drawBattery();
   drawWifiIcon();
+  drawWeather();
+  drawButtonLabels();
   canvas_.pushSprite(0, 0);
 }

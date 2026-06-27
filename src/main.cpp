@@ -1,6 +1,8 @@
 #include <M5Unified.h>
 #include "CatPet.h"
 #include "Net.h"
+#include "Sound.h"
+#include "Weather.h"
 
 CatPet pet;
 
@@ -20,18 +22,32 @@ void setup() {
 
     pet.begin();
     Net::begin();
+    Sound::begin();
+    Weather::begin();
 }
 
 void loop() {
     M5.update();
 
-    if (M5.BtnA.wasPressed()) pet.pokeHappy();
-    if (M5.BtnB.wasPressed()) pet.pokeSleepy();
-    if (M5.BtnC.wasPressed()) pet.pokeAngry();
+    if (pet.isManualSleeping()) {
+        if (M5.BtnA.wasPressed() || M5.BtnB.wasPressed() || M5.BtnC.wasPressed()) {
+            pet.wakeUp();
+        }
+    } else if (!pet.isNightMode()) {
+        if (M5.BtnA.wasPressed()) pet.triggerFeed();
+        if (M5.BtnB.wasPressed()) pet.triggerPlay();
+        if (M5.BtnC.wasPressed()) pet.triggerSleep();
+    }
 
     Net::update();
+    Sound::update();
+    Weather::update();
 
     pet.setWifiStatus(Net::isConnected(), Net::isTimeSynced());
+
+    if (Weather::hasData()) {
+        pet.setWeather(Weather::temperature(), Weather::conditionId());
+    }
 
     if (Net::isTimeSynced()) {
         int h = Net::hour();
@@ -39,6 +55,9 @@ void loop() {
         if (night != pet.isNightMode()) {
             pet.setNightMode(night);
             M5.Display.setBrightness(night ? BRIGHTNESS_NIGHT : BRIGHTNESS_DAY);
+            if (!night && pet.isManualSleeping()) {
+                pet.wakeUp();
+            }
         }
     }
 

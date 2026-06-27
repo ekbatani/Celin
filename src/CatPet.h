@@ -3,19 +3,22 @@
 
 #include <M5Unified.h>
 
-// A tiny pixel-art cat that walks around a cozy room (Tamagotchi / codachi
-// style). Owns a full-screen back-buffer and renders the whole scene each
-// frame: wall, floor, food plate, the cat (with a swishing tail), and a
-// battery indicator. A looping action state machine drives the behaviour.
 class CatPet {
  public:
   enum class Action { Walk, Sit, Eat, Play };
   enum class Mood { Neutral, Happy, Sleepy, Angry, Sad };
+  enum class Interactive {
+    None,
+    FeedWalk,
+    FeedEat,
+    FeedReturn,
+    PlayBounce,
+    SleepWalk,
+    SleepRest
+  };
 
   void begin();
-  // Advance the simulation. Call once per animation frame.
   void update();
-  // Draw the scene to the back-buffer and push it to the display.
   void render();
 
   void setNightMode(bool night);
@@ -23,20 +26,22 @@ class CatPet {
 
   void setWifiStatus(bool connected, bool timeSynced);
 
-  // Button hooks trigger short playful reactions.
-  void pokeHappy();
-  void pokeSleepy();
-  void pokeAngry();
+  void triggerFeed();
+  void triggerPlay();
+  void triggerSleep();
+  void wakeUp();
+  bool isManualSleeping() const { return manualSleep_; }
+
+  void setWeather(float temp, int conditionId);
 
  private:
-
   M5Canvas canvas_{&M5.Display};
 
   // --- motion / position ---
-  float x_ = 60.0f;       // foot-center x on the floor
-  int dir_ = 1;           // facing / travel direction: +1 right, -1 left
+  float x_ = 60.0f;
+  int dir_ = 1;
   bool walking_ = false;
-  float hop_ = 0.0f;      // vertical hop offset (Play / Happy)
+  float hop_ = 0.0f;
 
   // --- animation clock ---
   uint32_t frame_ = 0;
@@ -56,7 +61,11 @@ class CatPet {
   int batteryLevel_ = 100;
   bool charging_ = false;
   uint32_t batteryStamp_ = 0;
+
+  // --- hunger ---
+  int hunger_ = 100;
   int foodLevel_ = 3;
+  uint32_t lastHungerTick_ = 0;
 
   // --- day/night ---
   bool nightMode_ = false;
@@ -65,11 +74,26 @@ class CatPet {
   bool wifiConnected_ = false;
   bool timeSynced_ = false;
 
+  // --- interactive actions ---
+  Interactive interactive_ = Interactive::None;
+  uint32_t interactiveStart_ = 0;
+  float returnX_ = 60.0f;
+  bool manualSleep_ = false;
+
+  // --- speech bubble ---
+  const char* bubbleText_ = nullptr;
+  uint32_t bubbleUntil_ = 0;
+
+  // --- weather ---
+  float weatherTemp_ = 0;
+  int weatherCondition_ = 0;
+  bool hasWeather_ = false;
+
   void nextStep();
   void startStep();
   Mood currentMood() const;
+  void setBubble(const char* text, uint32_t durationMs);
 
-  // drawing helpers (operate on canvas_)
   void drawRoom();
   void drawWindow();
   void drawRug();
@@ -85,6 +109,9 @@ class CatPet {
   void drawHeart(int x, int y, uint8_t color);
   void drawAngerVein(int x, int y, uint8_t color);
   void drawSweatDrop(int x, int y, uint8_t color);
+  void drawSpeechBubble();
+  void drawWeather();
+  void drawButtonLabels();
 
   void applyDayPalette();
   void applyNightPalette();
