@@ -24,6 +24,7 @@ static const uint8_t IDX_SHADOW = 17;
 static const uint8_t IDX_HEART = 18;
 static const uint8_t IDX_ZZZ = 19;
 static const uint8_t IDX_WINDOW_SUN = 20;
+static const uint8_t IDX_STAR = 21;
 
 // ---- scene geometry ----
 static const int SCR_W = 320;
@@ -78,31 +79,61 @@ static const float WALK_SPEED = 2.2f;
 static const uint32_t BLINK_INTERVAL = 3200;
 static const uint32_t BLINK_LEN = 160;
 
+void CatPet::applyDayPalette() {
+  canvas_.setPaletteColor(IDX_WALL,         255, 232, 218);
+  canvas_.setPaletteColor(IDX_FLOOR,        244, 215, 180);
+  canvas_.setPaletteColor(IDX_LINE,         198, 172, 162);
+  canvas_.setPaletteColor(IDX_CAT_BODY,     255, 246, 230);
+  canvas_.setPaletteColor(IDX_PINK,         255, 180, 185);
+  canvas_.setPaletteColor(IDX_BLACK,         70,  55,  50);
+  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 255);
+  canvas_.setPaletteColor(IDX_PLATE,        235, 245, 230);
+  canvas_.setPaletteColor(IDX_FOOD,         240, 145,  95);
+  canvas_.setPaletteColor(IDX_CAT_STRIPE,   242, 180, 128);
+  canvas_.setPaletteColor(IDX_PLANT_POT,    235, 150, 120);
+  canvas_.setPaletteColor(IDX_PLANT_LEAF,   185, 212, 168);
+  canvas_.setPaletteColor(IDX_RUG,          255, 242, 205);
+  canvas_.setPaletteColor(IDX_RUG_PATTERN,  255, 188, 180);
+  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 218, 185, 150);
+  canvas_.setPaletteColor(IDX_WINDOW_SKY,   255, 218, 200);
+  canvas_.setPaletteColor(IDX_WINDOW_HILL,  208, 222, 178);
+  canvas_.setPaletteColor(IDX_SHADOW,       226, 196, 162);
+  canvas_.setPaletteColor(IDX_HEART,        255, 115, 125);
+  canvas_.setPaletteColor(IDX_ZZZ,          235, 210, 140);
+  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 170,  90);
+  canvas_.setPaletteColor(IDX_STAR,         255, 245, 200);
+}
+
+void CatPet::applyNightPalette() {
+  canvas_.setPaletteColor(IDX_WALL,          60,  50,  80);
+  canvas_.setPaletteColor(IDX_FLOOR,         70,  58,  75);
+  canvas_.setPaletteColor(IDX_LINE,          90,  75,  95);
+  canvas_.setPaletteColor(IDX_CAT_BODY,     200, 195, 185);
+  canvas_.setPaletteColor(IDX_PINK,         200, 130, 140);
+  canvas_.setPaletteColor(IDX_BLACK,         40,  30,  35);
+  canvas_.setPaletteColor(IDX_WHITE,        220, 218, 225);
+  canvas_.setPaletteColor(IDX_PLATE,        130, 140, 128);
+  canvas_.setPaletteColor(IDX_FOOD,         170, 105,  70);
+  canvas_.setPaletteColor(IDX_CAT_STRIPE,   180, 135,  95);
+  canvas_.setPaletteColor(IDX_PLANT_POT,    140,  95,  80);
+  canvas_.setPaletteColor(IDX_PLANT_LEAF,   100, 125,  90);
+  canvas_.setPaletteColor(IDX_RUG,          100,  90,  75);
+  canvas_.setPaletteColor(IDX_RUG_PATTERN,  130,  95,  90);
+  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 100,  85,  75);
+  canvas_.setPaletteColor(IDX_WINDOW_SKY,    25,  20,  50);
+  canvas_.setPaletteColor(IDX_WINDOW_HILL,   45,  55,  40);
+  canvas_.setPaletteColor(IDX_SHADOW,        50,  42,  55);
+  canvas_.setPaletteColor(IDX_HEART,        200,  85,  95);
+  canvas_.setPaletteColor(IDX_ZZZ,          170, 160, 110);
+  canvas_.setPaletteColor(IDX_WINDOW_SUN,   230, 225, 180);
+  canvas_.setPaletteColor(IDX_STAR,         255, 255, 210);
+}
+
 void CatPet::begin() {
   canvas_.setColorDepth(8);
   canvas_.createSprite(SCR_W, SCR_H);
 
-  canvas_.setPaletteColor(IDX_WALL,         255, 232, 218); // Cozy warm pastel peach wall
-  canvas_.setPaletteColor(IDX_FLOOR,        244, 215, 180); // Warm honey-beige wood floor
-  canvas_.setPaletteColor(IDX_LINE,         198, 172, 162); // Warm cocoa line color
-  canvas_.setPaletteColor(IDX_CAT_BODY,     255, 246, 230); // Warm cream cat body
-  canvas_.setPaletteColor(IDX_PINK,         255, 180, 185); // Warm strawberry pink nose/ears/cheeks
-  canvas_.setPaletteColor(IDX_BLACK,         70,  55,  50); // Warm dark charcoal (not cold black)
-  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 255); // Clean white chest/socks
-  canvas_.setPaletteColor(IDX_PLATE,        235, 245, 230); // Soft sage-green plate
-  canvas_.setPaletteColor(IDX_FOOD,         240, 145,  95); // Golden-orange food
-  canvas_.setPaletteColor(IDX_CAT_STRIPE,   242, 180, 128); // Warm ginger stripes
-  canvas_.setPaletteColor(IDX_PLANT_POT,    235, 150, 120); // Terracotta pot
-  canvas_.setPaletteColor(IDX_PLANT_LEAF,   185, 212, 168); // Soft warm green leaves
-  canvas_.setPaletteColor(IDX_RUG,          255, 242, 205); // Sunny cream-yellow rug
-  canvas_.setPaletteColor(IDX_RUG_PATTERN,  255, 188, 180); // Soft coral rug pattern
-  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 218, 185, 150); // Warm beige window frame
-  canvas_.setPaletteColor(IDX_WINDOW_SKY,   255, 218, 200); // Warm sunset pink sky
-  canvas_.setPaletteColor(IDX_WINDOW_HILL,  208, 222, 178); // Warm olive-green hills
-  canvas_.setPaletteColor(IDX_SHADOW,       226, 196, 162); // Warm shadow on honey floor
-  canvas_.setPaletteColor(IDX_HEART,        255, 115, 125); // Warm cherry-red heart
-  canvas_.setPaletteColor(IDX_ZZZ,          235, 210, 140); // Cozy warm gold Zzz
-  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 170,  90); // Warm sunset sun
+  applyDayPalette();
 
   step_ = 0;
   startStep();
@@ -133,6 +164,21 @@ void CatPet::nextStep() {
   startStep();
 }
 
+void CatPet::setNightMode(bool night) {
+  if (night == nightMode_) return;
+  nightMode_ = night;
+  if (night) {
+    applyNightPalette();
+  } else {
+    applyDayPalette();
+  }
+}
+
+void CatPet::setWifiStatus(bool connected, bool timeSynced) {
+  wifiConnected_ = connected;
+  timeSynced_ = timeSynced;
+}
+
 void CatPet::pokeHappy() {
   mood_ = Mood::Happy;
   moodUntil_ = millis() + 2000;
@@ -148,20 +194,15 @@ void CatPet::pokeAngry() {
 
 CatPet::Mood CatPet::currentMood() const {
   if (millis() < moodUntil_) return mood_;
-  
-  // If battery is low, cat feels sad
-  if (batteryLevel_ < 20) {
-    return Mood::Sad;
-  }
 
-  // Idle moods derived from the current action.
+  if (nightMode_) return Mood::Sleepy;
+
+  if (batteryLevel_ < 20) return Mood::Sad;
+
   switch (SCRIPT[step_].action) {
     case Action::Eat:
-      return Mood::Happy;
     case Action::Play:
       return Mood::Happy;
-    case Action::Sit:
-      return Mood::Neutral;
     default:
       return Mood::Neutral;
   }
@@ -250,34 +291,57 @@ void CatPet::drawWindow() {
   // Draw the inner window area
   int ix = wx + 6, iy = wy + 6, iw = ww - 12, ih = wh - 12;
   canvas_.fillRect(ix, iy, iw, ih, IDX_WINDOW_SKY);
-  
-  // Draw the sun in the sky
-  canvas_.fillCircle(ix + 25, iy + 20, 10, IDX_WINDOW_SUN);
-  
-  // Draw floating cloud
-  int cx = ix + ((frame_ / 5) % (iw + 40)) - 25;
-  // Draw fluffy cloud (overlapping circles)
-  if (cx + 20 >= ix && cx - 20 <= ix + iw) {
-    // Helper to draw clipped circle inside window
-    auto drawClippedCircle = [&](int x, int y, int r, uint8_t color) {
-      for (int dy = -r; dy <= r; dy++) {
-        for (int dx = -r; dx <= r; dx++) {
-          if (dx*dx + dy*dy <= r*r) {
-            int px = x + dx;
-            int py = y + dy;
-            if (px >= ix && px < ix + iw && py >= iy && py < iy + ih) {
-              canvas_.drawPixel(px, py, color);
-            }
+
+  auto drawClippedCircle = [&](int x, int y, int r, uint8_t color) {
+    for (int dy = -r; dy <= r; dy++) {
+      for (int dx = -r; dx <= r; dx++) {
+        if (dx*dx + dy*dy <= r*r) {
+          int px = x + dx;
+          int py = y + dy;
+          if (px >= ix && px < ix + iw && py >= iy && py < iy + ih) {
+            canvas_.drawPixel(px, py, color);
           }
         }
       }
-    };
-    drawClippedCircle(cx, iy + 30, 8, IDX_WHITE);
-    drawClippedCircle(cx - 6, iy + 32, 6, IDX_WHITE);
-    drawClippedCircle(cx + 6, iy + 32, 6, IDX_WHITE);
+    }
+  };
+
+  if (nightMode_) {
+    // Moon (crescent: full circle minus offset circle)
+    canvas_.fillCircle(ix + iw - 25, iy + 18, 10, IDX_WINDOW_SUN);
+    canvas_.fillCircle(ix + iw - 20, iy + 15, 9, IDX_WINDOW_SKY);
+
+    // Twinkling stars
+    static const int starX[] = {12, 35, 55, 78, 22, 65, 95, 48};
+    static const int starY[] = {10, 25, 12, 18, 42, 38, 30, 50};
+    for (int i = 0; i < 8; i++) {
+      int sx = ix + starX[i] % iw;
+      int sy = iy + starY[i] % ih;
+      if (sy < iy + ih - 18) {
+        bool twinkle = ((frame_ / 8 + i * 7) % 12) < 9;
+        if (twinkle) {
+          canvas_.drawPixel(sx, sy, IDX_STAR);
+          if (i % 3 == 0) {
+            canvas_.drawPixel(sx - 1, sy, IDX_STAR);
+            canvas_.drawPixel(sx + 1, sy, IDX_STAR);
+            canvas_.drawPixel(sx, sy - 1, IDX_STAR);
+            canvas_.drawPixel(sx, sy + 1, IDX_STAR);
+          }
+        }
+      }
+    }
+  } else {
+    canvas_.fillCircle(ix + 25, iy + 20, 10, IDX_WINDOW_SUN);
+
+    int cx = ix + ((frame_ / 5) % (iw + 40)) - 25;
+    if (cx + 20 >= ix && cx - 20 <= ix + iw) {
+      drawClippedCircle(cx, iy + 30, 8, IDX_WHITE);
+      drawClippedCircle(cx - 6, iy + 32, 6, IDX_WHITE);
+      drawClippedCircle(cx + 6, iy + 32, 6, IDX_WHITE);
+    }
   }
-  
-  // Draw rolling hills at the bottom of the window
+
+  // Rolling hills
   for (int x = ix; x < ix + iw; x++) {
     int hillY = iy + ih - 15 + (int)(sinf((x - ix) * 0.05f) * 4.0f);
     if (hillY < iy + ih) {
@@ -620,6 +684,25 @@ void CatPet::drawBattery() {
   }
 }
 
+void CatPet::drawWifiIcon() {
+  int x = 255, y = 14;
+  uint8_t col = wifiConnected_ ? IDX_PLATE : IDX_HEART;
+  if (!wifiConnected_ && (frame_ / 15) % 2 == 0) return;
+
+  // Three arcs (small WiFi symbol)
+  for (int r = 3; r <= 9; r += 3) {
+    for (int a = -r; a <= r; a++) {
+      int dy = -(int)sqrtf((float)(r * r - a * a));
+      int px = x + a;
+      int py = y + 10 + dy;
+      if (a * a + dy * dy >= (r - 1) * (r - 1)) {
+        canvas_.drawPixel(px, py, col);
+      }
+    }
+  }
+  canvas_.fillRect(x - 1, y + 9, 3, 3, col);
+}
+
 void CatPet::render() {
   drawRoom();
   drawWindow();
@@ -629,5 +712,6 @@ void CatPet::render() {
   drawPlate();
   drawCat();
   drawBattery();
+  drawWifiIcon();
   canvas_.pushSprite(0, 0);
 }

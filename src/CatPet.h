@@ -18,6 +18,11 @@ class CatPet {
   // Draw the scene to the back-buffer and push it to the display.
   void render();
 
+  void setNightMode(bool night);
+  bool isNightMode() const { return nightMode_; }
+
+  void setWifiStatus(bool connected, bool timeSynced);
+
   // Button hooks trigger short playful reactions.
   void pokeHappy();
   void pokeSleepy();
@@ -53,6 +58,13 @@ class CatPet {
   uint32_t batteryStamp_ = 0;
   int foodLevel_ = 3;
 
+  // --- day/night ---
+  bool nightMode_ = false;
+
+  // --- connectivity ---
+  bool wifiConnected_ = false;
+  bool timeSynced_ = false;
+
   void nextStep();
   void startStep();
   Mood currentMood() const;
@@ -69,9 +81,13 @@ class CatPet {
   void drawEye(int ex, int ey, int eyeIndex, int gaze, Mood mood, bool closed);
   void drawLegs(int originX, int originY, bool walking, int legPhase);
   void drawBattery();
+  void drawWifiIcon();
   void drawHeart(int x, int y, uint8_t color);
   void drawAngerVein(int x, int y, uint8_t color);
   void drawSweatDrop(int x, int y, uint8_t color);
+
+  void applyDayPalette();
+  void applyNightPalette();
 };
 
 #endif  // CAT_PET_H_

@@ -12,7 +12,8 @@ A fun, safe, AI-powered cat companion for kids, running on an M5Stack Core (ESP3
   swishing tail and button-driven moods (Happy / Sleepy / Angry). See
   [`src/CatPet.cpp`](src/CatPet.cpp). Rendered to a full-screen back-buffer for
   flicker-free animation; main loop is non-blocking (`millis()`).
-- No WiFi, no time, no sound, no AI — all of these will be added from scratch.
+- **WiFi + NTP time sync** with auto-reconnect, connection-status icon, and a full day/night cycle: at night (20:00–07:00) the palette shifts to moonlit blues/purples, the window shows a crescent moon and twinkling stars, the cat goes sleepy, and the display dims. See [`src/Net.cpp`](src/Net.cpp).
+- No sound, no AI — these will be added in later phases.
 
 ### Hardware
 - **Board:** M5Stack Core V2.7 (ESP32-D0WDQ6-V3) — port `/dev/ttyACM0` @ 115200.
@@ -44,9 +45,9 @@ The roadmap is split into 5 phases. Each phase builds on the previous one. The "
 
 | # | Goal | Technical notes | Depends on |
 |---|------|-----------------|------------|
-| ☐ | **Connect to WiFi** | `WiFi.begin()`; SSID/password in a separate file (`include/secrets.h`, outside the repo). Offline/reconnect handling. Connection-status icon. | — |
-| ☐ | **Day & night** | Sync time over NTP (`configTime`). Change the background/color palette between day (light) and night (dark) based on the hour. | WiFi |
-| ☐ | **Sleep at night** | After a set hour, the avatar goes into `Sleepy` mode and the display dims; it wakes up in the morning. | Day & night |
+| ✅ | **Connect to WiFi** | `WiFi.begin()`; SSID/password in a separate file (`include/secrets.h`, outside the repo). Offline/reconnect handling. Connection-status icon. | — |
+| ✅ | **Day & night** | Sync time over NTP (`configTime`). Change the background/color palette between day (light) and night (dark) based on the hour. | WiFi |
+| ✅ | **Sleep at night** | After a set hour, the avatar goes into `Sleepy` mode and the display dims; it wakes up in the morning. | Day & night |
 
 **Phase output:** The cat knows whether it's day or night and adjusts its behavior.
 
@@ -138,16 +139,16 @@ include/
 
 ## Full Goal Checklist
 
-- [ ] Have a day and night cycle — *Phase 1*
+- [x] Have a day and night cycle — *Phase 1*
 - [x] Be a playful cat with white ears — *Phase 0*
 - [ ] Show the weather every few hours — *Phase 3*
-- [ ] Connect to WiFi — *Phase 1*
+- [x] Connect to WiFi — *Phase 1*
 - [ ] Press a button to put out food and have it go eat — *Phase 2*
 - [ ] A button to play — *Phase 2*
 - [ ] Go to sleep — *Phase 2*
 - [ ] Message mom and dad — *Phase 4*
 - [ ] React if the weather is hot or cold — *Phase 3*
-- [ ] Sleep at night — *Phase 1*
+- [x] Sleep at night — *Phase 1*
 - [ ] Tell a story at night, then sleep — *Phase 5*
 - [x] Show the battery level — *Phase 0*
 - [ ] Receive messages from us — *Phase 4*
