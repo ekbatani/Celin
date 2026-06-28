@@ -85,53 +85,53 @@ static const float TEMP_HOT = 30.0f;
 static const float TEMP_COLD = 5.0f;
 
 void CatPet::applyDayPalette() {
-  canvas_.setPaletteColor(IDX_WALL,         255, 232, 218);
-  canvas_.setPaletteColor(IDX_FLOOR,        244, 215, 180);
-  canvas_.setPaletteColor(IDX_LINE,         198, 172, 162);
-  canvas_.setPaletteColor(IDX_CAT_BODY,     255, 246, 230);
-  canvas_.setPaletteColor(IDX_PINK,         255, 180, 185);
-  canvas_.setPaletteColor(IDX_BLACK,         70,  55,  50);
-  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 255);
-  canvas_.setPaletteColor(IDX_PLATE,        235, 245, 230);
-  canvas_.setPaletteColor(IDX_FOOD,         240, 145,  95);
-  canvas_.setPaletteColor(IDX_CAT_STRIPE,   242, 180, 128);
-  canvas_.setPaletteColor(IDX_PLANT_POT,    235, 150, 120);
-  canvas_.setPaletteColor(IDX_PLANT_LEAF,   185, 212, 168);
-  canvas_.setPaletteColor(IDX_RUG,          255, 242, 205);
-  canvas_.setPaletteColor(IDX_RUG_PATTERN,  255, 188, 180);
-  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 218, 185, 150);
-  canvas_.setPaletteColor(IDX_WINDOW_SKY,   255, 218, 200);
-  canvas_.setPaletteColor(IDX_WINDOW_HILL,  208, 222, 178);
-  canvas_.setPaletteColor(IDX_SHADOW,       226, 196, 162);
-  canvas_.setPaletteColor(IDX_HEART,        255, 115, 125);
-  canvas_.setPaletteColor(IDX_ZZZ,          235, 210, 140);
-  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 170,  90);
-  canvas_.setPaletteColor(IDX_STAR,         255, 245, 200);
+  canvas_.setPaletteColor(IDX_WALL,         255, 218, 192);
+  canvas_.setPaletteColor(IDX_FLOOR,        246, 198, 156);
+  canvas_.setPaletteColor(IDX_LINE,         200, 158, 138);
+  canvas_.setPaletteColor(IDX_CAT_BODY,     255, 240, 220);
+  canvas_.setPaletteColor(IDX_PINK,         255, 158, 168);
+  canvas_.setPaletteColor(IDX_BLACK,        74,  48,  42);
+  canvas_.setPaletteColor(IDX_WHITE,        255, 255, 252);
+  canvas_.setPaletteColor(IDX_PLATE,        252, 224, 200);
+  canvas_.setPaletteColor(IDX_FOOD,         244, 132,  80);
+  canvas_.setPaletteColor(IDX_CAT_STRIPE,   245, 162, 108);
+  canvas_.setPaletteColor(IDX_PLANT_POT,    236, 138, 100);
+  canvas_.setPaletteColor(IDX_PLANT_LEAF,   192, 200, 150);
+  canvas_.setPaletteColor(IDX_RUG,          255, 232, 192);
+  canvas_.setPaletteColor(IDX_RUG_PATTERN,  255, 168, 158);
+  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 220, 168, 124);
+  canvas_.setPaletteColor(IDX_WINDOW_SKY,   255, 204, 176);
+  canvas_.setPaletteColor(IDX_WINDOW_HILL,  210, 198, 152);
+  canvas_.setPaletteColor(IDX_SHADOW,       220, 176, 138);
+  canvas_.setPaletteColor(IDX_HEART,        255,  92, 110);
+  canvas_.setPaletteColor(IDX_ZZZ,          244, 198, 128);
+  canvas_.setPaletteColor(IDX_WINDOW_SUN,   255, 156,  74);
+  canvas_.setPaletteColor(IDX_STAR,         255, 238, 188);
 }
 
 void CatPet::applyNightPalette() {
-  canvas_.setPaletteColor(IDX_WALL,          60,  50,  80);
-  canvas_.setPaletteColor(IDX_FLOOR,         70,  58,  75);
-  canvas_.setPaletteColor(IDX_LINE,          90,  75,  95);
-  canvas_.setPaletteColor(IDX_CAT_BODY,     200, 195, 185);
-  canvas_.setPaletteColor(IDX_PINK,         200, 130, 140);
-  canvas_.setPaletteColor(IDX_BLACK,         40,  30,  35);
-  canvas_.setPaletteColor(IDX_WHITE,        220, 218, 225);
-  canvas_.setPaletteColor(IDX_PLATE,        130, 140, 128);
-  canvas_.setPaletteColor(IDX_FOOD,         170, 105,  70);
-  canvas_.setPaletteColor(IDX_CAT_STRIPE,   180, 135,  95);
-  canvas_.setPaletteColor(IDX_PLANT_POT,    140,  95,  80);
-  canvas_.setPaletteColor(IDX_PLANT_LEAF,   100, 125,  90);
-  canvas_.setPaletteColor(IDX_RUG,          100,  90,  75);
-  canvas_.setPaletteColor(IDX_RUG_PATTERN,  130,  95,  90);
-  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 100,  85,  75);
-  canvas_.setPaletteColor(IDX_WINDOW_SKY,    25,  20,  50);
-  canvas_.setPaletteColor(IDX_WINDOW_HILL,   45,  55,  40);
-  canvas_.setPaletteColor(IDX_SHADOW,        50,  42,  55);
-  canvas_.setPaletteColor(IDX_HEART,        200,  85,  95);
-  canvas_.setPaletteColor(IDX_ZZZ,          170, 160, 110);
-  canvas_.setPaletteColor(IDX_WINDOW_SUN,   230, 225, 180);
-  canvas_.setPaletteColor(IDX_STAR,         255, 255, 210);
+  canvas_.setPaletteColor(IDX_WALL,          72,  44,  60);
+  canvas_.setPaletteColor(IDX_FLOOR,         80,  50,  54);
+  canvas_.setPaletteColor(IDX_LINE,          104, 72,  76);
+  canvas_.setPaletteColor(IDX_CAT_BODY,     220, 188, 168);
+  canvas_.setPaletteColor(IDX_PINK,         214, 120, 130);
+  canvas_.setPaletteColor(IDX_BLACK,         44,  26,  30);
+  canvas_.setPaletteColor(IDX_WHITE,        240, 224, 212);
+  canvas_.setPaletteColor(IDX_PLATE,        170, 138, 120);
+  canvas_.setPaletteColor(IDX_FOOD,         186,  92,  60);
+  canvas_.setPaletteColor(IDX_CAT_STRIPE,   198, 140,  96);
+  canvas_.setPaletteColor(IDX_PLANT_POT,    158,  84,  64);
+  canvas_.setPaletteColor(IDX_PLANT_LEAF,   118, 132,  82);
+  canvas_.setPaletteColor(IDX_RUG,          118,  76,  64);
+  canvas_.setPaletteColor(IDX_RUG_PATTERN,  158, 100,  92);
+  canvas_.setPaletteColor(IDX_WINDOW_FRAME, 122,  78,  62);
+  canvas_.setPaletteColor(IDX_WINDOW_SKY,    42,  20,  40);
+  canvas_.setPaletteColor(IDX_WINDOW_HILL,   62,  56,  38);
+  canvas_.setPaletteColor(IDX_SHADOW,        58,  36,  42);
+  canvas_.setPaletteColor(IDX_HEART,        220,  88, 100);
+  canvas_.setPaletteColor(IDX_ZZZ,          206, 156, 100);
+  canvas_.setPaletteColor(IDX_WINDOW_SUN,   240, 210, 160);
+  canvas_.setPaletteColor(IDX_STAR,         255, 240, 198);
 }
 
 void CatPet::begin() {
@@ -647,6 +647,9 @@ void CatPet::drawEye(int ex, int ey, int eyeIndex, int gaze, Mood mood,
   // Draw 1x2 pupil
   canvas_.fillRect(ex + col * PX, ey + PX, PX, 2 * PX, IDX_BLACK);
 
+  // Cute shiny sparkle on the pupil (upper-left reflection)
+  canvas_.fillRect(ex + col * PX, ey + PX, PX - 1, PX - 1, IDX_WHITE);
+
   // Draw iris highlight below the pupil (on row 2)
   canvas_.fillRect(ex + col * PX, ey + 2 * PX, PX, PX, IDX_ZZZ); // Blue iris highlight
 
@@ -745,6 +748,19 @@ void CatPet::drawCat() {
       else if (v == 4) color = IDX_WHITE;
       canvas_.fillRect(originX + c * PX, originY + r * PX, PX, PX, color);
     }
+  }
+
+  // Cute round blush on cheeks (below the eyes).
+  canvas_.fillEllipse(originX + 2 * PX + PX / 2, originY + 6 * PX, PX, PX - 1, IDX_PINK);
+  canvas_.fillEllipse(originX + 13 * PX + PX / 2, originY + 6 * PX, PX, PX - 1, IDX_PINK);
+
+  // Tiny whiskers for extra cuteness.
+  for (int side = 0; side < 2; side++) {
+    int baseX = originX + (side == 0 ? 3 * PX : 12 * PX);
+    int baseY = originY + 6 * PX;
+    int s = (side == 0) ? -1 : 1;
+    canvas_.drawLine(baseX, baseY, baseX + s * 7, baseY - 2, IDX_LINE);
+    canvas_.drawLine(baseX, baseY + 2, baseX + s * 7, baseY + 4, IDX_LINE);
   }
 
   // Eyes (rows 4-6). Look toward travel; look down a touch while eating.
